@@ -1,35 +1,97 @@
-<!DOCTYPE html> 
-<html lang="ja"> 
-<head> 
-<meta charset="UTF-8"> 
-<title>メカニック価格計算</title> 
-<style> body{
-    font-family: sans-serif;
-    background:#1e1e1e; color:white; padding:30px; 
-}
-    table{ 
-        border-collapse: collapse; width:400px; 
-    } 
-    td,th{ 
-        border:1px solid #555; padding:10px; 
-    } 
-    select{
-        width:100%;
-    }
-    .total{
-        font-size:20px; font-weight:bold; 
-    } 
-</style>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>メカニック価格計算</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #1e1e1e;
+            color: white;
+            padding: 30px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 400px;
+        }
+
+        td,
+        th {
+            border: 1px solid #555;
+            padding: 10px;
+        }
+
+        select {
+            width: 100%;
+        }
+
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
-<h2>メカニック価格計算</h2>
+    <h2>メカニック価格計算</h2>
+    <table>
+        <tr>
+            <th>パーツ</th>
+            <th>レベル</th>
+            <th>価格</th>
+        </tr>
+        <tr>
+            <td>エンジン</td>
+            <td> <select onchange="calc()">
+                    <option value="0">なし</option>
+                    <option value="500">Lv1</option>
+                    <option value="1000">Lv2</option>
+                    <option value="2000">Lv3</option>
+                    <option value="4000">Lv4</option>
+                </select> </td>
+            <td class="price">0</td>
+        </tr>
+        <tr>
+            <td>トランスミッション</td>
+            <td> <select onchange="calc()">
+                    <option value="0">なし</option>
+                    <option value="400">Lv1</option>
+                    <option value="900">Lv2</option>
+                    <option value="1800">Lv3</option>
+                    <option value="3500">Lv4</option>
+                </select> </td>
+            <td class="price">0</td>
+        </tr>
+        <tr>
+            <td>サスペンション</td>
+            <td> <select onchange="calc()">
+                    <option value="0">なし</option>
+                    <option value="300">Lv1</option>
+                    <option value="700">Lv2</option>
+                    <option value="1500">Lv3</option>
+                    <option value="3000">Lv4</option>
+                </select> </td>
+            <td class="price">0</td>
+        </tr>
+        <tr>
+            <td>ブレーキ</td>
+            <td> <select onchange="calc()">
+                    <option value="0">なし</option>
+                    <option value="200">Lv1</option>
+                    <option value="600">Lv2</option>
+                    <option value="1200">Lv3</option>
+                    <option value="2500">Lv4</option>
+                </select> </td>
+            <td class="price">0</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="total">合計</td>
+            <td class="total" id="total">0</td>
+        </tr>
+    </table>
+    <script> function calc() { let selects = document.querySelectorAll("select"); let prices = document.querySelectorAll(".price"); let total = 0; selects.forEach((s, i) => { let value = Number(s.value); prices[i].textContent = value; total += value; }); document.getElementById("total").textContent = total; } </script>
+</body>
 
-<table>
-    <tr>
-    <th>パーツ</th>
-    <th>レベル</th>
-    <th>価格</th> </tr>
-    <tr> <td>エンジン</td>
-        <td> <select onchange="calc()">
-        <option value="0">なし</option> <option value="500">Lv1</option> <option value="1000">Lv2</option> <option value="2000">Lv3</option> <option value="4000">Lv4</option> </select> </td> <td class="price">0</td> </tr> <tr> <td>トランスミッション</td> <td> <select onchange="calc()"> <option value="0">なし</option> <option value="400">Lv1</option> <option value="900">Lv2</option> <option value="1800">Lv3</option> <option value="3500">Lv4</option> </select> </td> <td class="price">0</td> </tr> <tr> <td>サスペンション</td> <td> <select onchange="calc()"> <option value="0">なし</option> <option value="300">Lv1</option> <option value="700">Lv2</option> <option value="1500">Lv3</option> <option value="3000">Lv4</option> </select> </td> <td class="price">0</td> </tr> <tr> <td>ブレーキ</td> <td> <select onchange="calc()"> <option value="0">なし</option> <option value="200">Lv1</option> <option value="600">Lv2</option> <option value="1200">Lv3</option> <option value="2500">Lv4</option> </select> </td> <td class="price">0</td> </tr> <tr> <td colspan="2" class="total">合計</td> <td class="total" id="total">0</td> </tr> </table> <script> function calc(){ let selects=document.querySelectorAll("select"); let prices=document.querySelectorAll(".price"); let total=0; selects.forEach((s,i)=>{ let value=Number(s.value); prices[i].textContent=value; total+=value; }); document.getElementById("total").textContent=total; } </script> </body> </html>
+</html>
