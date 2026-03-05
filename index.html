@@ -22,6 +22,9 @@
         }
 
         .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             padding: 10px;
         }
 
@@ -31,6 +34,7 @@
             margin: 10px;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 200px;
         }
 
         .name {
@@ -56,6 +60,7 @@
             border-radius: 8px;
             background: #4CAF50;
             color: white;
+            cursor: pointer;
         }
 
         .minus {
@@ -92,7 +97,8 @@
             font-size: 14px;
         }
 
-        select {
+        select,
+        input {
             font-size: 18px;
             padding: 5px;
             margin-top: 5px;
@@ -104,6 +110,13 @@
 
     <h1>ゲームショップ</h1>
 
+    <div class="salesBox">
+        管理者ログイン<br>
+        <input type="password" id="adminPass">
+        <button onclick="adminLogin()">ログイン</button>
+        <span id="adminStatus"></span>
+    </div>
+
     <div class="container" id="shop"></div>
 
     <div class="totalBox">
@@ -111,31 +124,48 @@
     </div>
 
     <div class="salesBox">
-        担当者:<br>
+        担当者<br>
+
         <select id="staff">
-            <option value="スタッフ選択">スタッフ選択</option>
-            <option value="ハイド">ハイド</option>
-            <option value="ナイン">ナイン</option>
-            <option value="ひなた">ひなた</option>
-            <option value="ココノエユウカ">ココノエユウカ</option>
-            <option value="かいと">かいと</option>
-            <option value="7">7</option>
-            <option value="天月">天月</option>
-            <option value="りん">りん</option>
-            <option value="蓮">蓮</option>
-            <option value="ヒイラギべに">ヒイラギべに</option>
-            <option value="唯乃">唯乃</option>
-            <option value="こう">こう</option>
-            <option value="レッド・タンジェリン">レッド・タンジェリン</option>
+
+            <option>スタッフ選択</option>
+            <option>ハイド</option>
+            <option>ナイン</option>
+            <option>ひなた</option>
+            <option>ココノエユウカ</option>
+            <option>かいと</option>
+            <option>7</option>
+            <option>天月</option>
+            <option>りん</option>
+            <option>蓮</option>
+            <option>ヒイラギべに</option>
+            <option>唯乃</option>
+            <option>こう</option>
+            <option>レッド・タンジェリン</option>
 
         </select>
+
     </div>
 
     <button class="checkout" onclick="checkout()">決済</button>
 
     <div class="salesBox">
+
         今日の売上: <span id="todaySales">0</span> G<br>
         1週間の売上: <span id="weekSales">0</span> G
+
+    </div>
+
+    <div class="salesBox">
+        <h3>スタッフ売上ランキング</h3>
+        <div id="staffRank"></div>
+    </div>
+
+    <div class="salesBox">
+
+        <button onclick="downloadCSV()">CSVダウンロード</button>
+        <button onclick="resetSales()">売上リセット</button>
+
     </div>
 
     <div class="salesBox">
@@ -145,12 +175,34 @@
 
     <script>
 
+        let ADMIN_PASSWORD = "ADMIN123";
+        let isAdmin = false;
+
         let items = [
+
             { name: "ローストビーフ", price: 120000, qty: 0 },
             { name: "ローストビーフ(白)", price: 60000, qty: 0 },
             { name: "h666", price: 120000, qty: 0 },
             { name: "h666(白)", price: 60000, qty: 0 }
+
         ];
+
+        function adminLogin() {
+
+            let pass = document.getElementById("adminPass").value;
+
+            if (pass === ADMIN_PASSWORD) {
+
+                isAdmin = true;
+                document.getElementById("adminStatus").textContent = "管理者ログイン中";
+
+            } else {
+
+                alert("パスワードが違います");
+
+            }
+
+        }
 
         function render() {
 
@@ -160,6 +212,7 @@
             items.forEach((item, i) => {
 
                 let div = document.createElement("div");
+
                 div.className = "item";
 
                 div.innerHTML = `
@@ -189,9 +242,7 @@
 
             items[index].qty += amount;
 
-            if (items[index].qty < 0) {
-                items[index].qty = 0;
-            }
+            if (items[index].qty < 0) items[index].qty = 0;
 
             render();
 
@@ -202,7 +253,9 @@
             let total = 0;
 
             items.forEach(item => {
+
                 total += item.price * item.qty;
+
             });
 
             document.getElementById("total").textContent = total;
@@ -210,7 +263,9 @@
         }
 
         function getToday() {
+
             return new Date().toISOString().slice(0, 10);
+
         }
 
         function checkout() {
@@ -218,23 +273,26 @@
             let total = Number(document.getElementById("total").textContent);
 
             if (total === 0) {
+
                 alert("商品を選んでください");
                 return;
+
             }
 
             let staff = document.getElementById("staff").value;
 
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+
             let today = getToday();
 
-            if (!sales[today]) {
-                sales[today] = [];
-            }
+            if (!sales[today]) sales[today] = [];
 
             sales[today].push({
+
                 time: new Date().toLocaleTimeString(),
                 amount: total,
                 staff: staff
+
             });
 
             localStorage.setItem("sales", JSON.stringify(sales));
@@ -256,18 +314,25 @@
             let todayTotal = 0;
             let weekTotal = 0;
 
+            let staffRank = {};
+
             let now = new Date();
 
             for (let i = 0; i < 7; i++) {
 
                 let d = new Date(now);
                 d.setDate(now.getDate() - i);
+
                 let key = d.toISOString().slice(0, 10);
 
                 if (sales[key]) {
 
                     sales[key].forEach(s => {
+
                         weekTotal += s.amount;
+
+                        staffRank[s.staff] = (staffRank[s.staff] || 0) + s.amount;
+
                     });
 
                 }
@@ -275,24 +340,53 @@
             }
 
             if (sales[today]) {
+
                 sales[today].forEach(s => {
+
                     todayTotal += s.amount;
+
                 });
+
             }
 
             document.getElementById("todaySales").textContent = todayTotal;
             document.getElementById("weekSales").textContent = weekTotal;
 
+            renderRanking(staffRank);
             renderLogs();
+
+        }
+
+        function renderRanking(rank) {
+
+            let arr = Object.entries(rank);
+
+            arr.sort((a, b) => b[1] - a[1]);
+
+            let div = document.getElementById("staffRank");
+
+            div.innerHTML = "";
+
+            arr.forEach(r => {
+
+                let el = document.createElement("div");
+
+                el.textContent = r[0] + " : " + r[1] + "G";
+
+                div.appendChild(el);
+
+            });
 
         }
 
         function renderLogs() {
 
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+
             let today = getToday();
 
             const logList = document.getElementById("logList");
+
             logList.innerHTML = "";
 
             if (!sales[today]) return;
@@ -300,12 +394,16 @@
             sales[today].forEach((log, index) => {
 
                 let div = document.createElement("div");
+
                 div.className = "log";
 
                 div.innerHTML = `
+
 ${log.time} - ${log.amount}G (${log.staff})
+
 <button onclick="editLog(${index})">修正</button>
 <button onclick="deleteLog(${index})">削除</button>
+
 `;
 
                 logList.appendChild(div);
@@ -316,10 +414,18 @@ ${log.time} - ${log.amount}G (${log.staff})
 
         function editLog(index) {
 
+            if (!isAdmin) {
+
+                alert("管理者のみ編集できます");
+                return;
+
+            }
+
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+
             let today = getToday();
 
-            let newAmount = prompt("金額を修正", sales[today][index].amount);
+            let newAmount = prompt("金額修正", sales[today][index].amount);
 
             if (newAmount === null) return;
 
@@ -333,7 +439,15 @@ ${log.time} - ${log.amount}G (${log.staff})
 
         function deleteLog(index) {
 
+            if (!isAdmin) {
+
+                alert("管理者のみ削除できます");
+                return;
+
+            }
+
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+
             let today = getToday();
 
             sales[today].splice(index, 1);
@@ -341,6 +455,53 @@ ${log.time} - ${log.amount}G (${log.staff})
             localStorage.setItem("sales", JSON.stringify(sales));
 
             updateSales();
+
+        }
+
+        function resetSales() {
+
+            if (!isAdmin) {
+
+                alert("管理者のみリセットできます");
+                return;
+
+            }
+
+            if (confirm("売上をすべて削除しますか？")) {
+
+                localStorage.removeItem("sales");
+
+                updateSales();
+
+            }
+
+        }
+
+        function downloadCSV() {
+
+            let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+
+            let csv = "日付,時間,スタッフ,金額\n";
+
+            for (let date in sales) {
+
+                sales[date].forEach(s => {
+
+                    csv += `${date},${s.time},${s.staff},${s.amount}\n`;
+
+                });
+
+            }
+
+            let blob = new Blob([csv]);
+
+            let a = document.createElement("a");
+
+            a.href = URL.createObjectURL(blob);
+
+            a.download = "sales.csv";
+
+            a.click();
 
         }
 
