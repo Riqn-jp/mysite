@@ -3,8 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ゲームショップ</title>
+    <title>ゲームショップレジ</title>
 
     <style>
         body {
@@ -33,16 +32,12 @@
             padding: 15px;
             margin: 10px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             width: 200px;
-        }
-
-        .name {
-            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .price {
-            color: #666;
+            color: #777;
         }
 
         .qty {
@@ -74,18 +69,10 @@
             margin: 10px;
         }
 
-        .totalBox {
+        .box {
             background: white;
-            padding: 15px;
-            margin: 10px;
-            border-radius: 10px;
-            font-size: 22px;
-        }
-
-        .salesBox {
-            background: white;
-            margin: 10px;
             padding: 10px;
+            margin: 10px;
             border-radius: 10px;
         }
 
@@ -94,14 +81,6 @@
             margin: 5px;
             padding: 8px;
             border-radius: 6px;
-            font-size: 14px;
-        }
-
-        select,
-        input {
-            font-size: 18px;
-            padding: 5px;
-            margin-top: 5px;
         }
     </style>
 </head>
@@ -110,20 +89,26 @@
 
     <h1>ゲームショップ</h1>
 
-    <div class="salesBox">
+    <div class="box">
+
         管理者ログイン<br>
+
         <input type="password" id="adminPass">
         <button onclick="adminLogin()">ログイン</button>
         <span id="adminStatus"></span>
+
     </div>
 
-    <div class="container" id="shop"></div>
+    <div id="shop" class="container"></div>
 
-    <div class="totalBox">
+    <div class="box">
+
         合計: <span id="total">0</span> G
+
     </div>
 
-    <div class="salesBox">
+    <div class="box">
+
         担当者<br>
 
         <select id="staff">
@@ -134,14 +119,6 @@
             <option>ひなた</option>
             <option>ココノエユウカ</option>
             <option>かいと</option>
-            <option>7</option>
-            <option>天月</option>
-            <option>りん</option>
-            <option>蓮</option>
-            <option>ヒイラギべに</option>
-            <option>唯乃</option>
-            <option>こう</option>
-            <option>レッド・タンジェリン</option>
 
         </select>
 
@@ -149,43 +126,51 @@
 
     <button class="checkout" onclick="checkout()">決済</button>
 
-    <div class="salesBox">
+    <div class="box">
 
         今日の売上: <span id="todaySales">0</span> G<br>
         1週間の売上: <span id="weekSales">0</span> G
 
     </div>
 
-    <div class="salesBox">
-        <h3>スタッフ売上ランキング</h3>
-        <div id="staffRank"></div>
+    <div class="box">
+
+        <h3>スタッフランキング</h3>
+
+        <div id="ranking"></div>
+
     </div>
 
-    <div class="salesBox">
+    <div class="box">
 
         <button onclick="downloadCSV()">CSVダウンロード</button>
         <button onclick="resetSales()">売上リセット</button>
 
     </div>
 
-    <div class="salesBox">
+    <div class="box">
+
         <h3>今日の売上ログ</h3>
+
         <div id="logList"></div>
+
     </div>
 
     <script>
 
-        let ADMIN_PASSWORD = "ADMIN123";
+        let ADMIN_PASSWORD = "admin123";
         let isAdmin = false;
 
         let items = [
-
             { name: "ローストビーフ", price: 120000, qty: 0 },
-            { name: "ローストビーフ(白)", price: 60000, qty: 0 },
+            { name: "ローストビーフ白", price: 60000, qty: 0 },
             { name: "h666", price: 120000, qty: 0 },
-            { name: "h666(白)", price: 60000, qty: 0 }
-
+            { name: "h666白", price: 60000, qty: 0 }
         ];
+
+        function format(num) {
+            return num.toLocaleString();
+        }
 
         function adminLogin() {
 
@@ -196,9 +181,11 @@
                 isAdmin = true;
                 document.getElementById("adminStatus").textContent = "管理者ログイン中";
 
+                updateSales();
+
             } else {
 
-                alert("パスワードが違います");
+                alert("パスワード違います");
 
             }
 
@@ -217,8 +204,8 @@
 
                 div.innerHTML = `
 
-<div class="name">${item.name}</div>
-<div class="price">${item.price} G</div>
+<div>${item.name}</div>
+<div class="price">${format(item.price)} G</div>
 
 <button class="minus" onclick="changeQty(${i},-10)">-10</button>
 <button class="minus" onclick="changeQty(${i},-1)">-1</button>
@@ -252,17 +239,17 @@
 
             let total = 0;
 
-            items.forEach(item => {
+            items.forEach(i => {
 
-                total += item.price * item.qty;
+                total += i.price * i.qty;
 
             });
 
-            document.getElementById("total").textContent = total;
+            document.getElementById("total").textContent = format(total);
 
         }
 
-        function getToday() {
+        function today() {
 
             return new Date().toISOString().slice(0, 10);
 
@@ -270,11 +257,17 @@
 
         function checkout() {
 
-            let total = Number(document.getElementById("total").textContent);
+            let total = 0;
+
+            items.forEach(i => {
+
+                total += i.price * i.qty;
+
+            });
 
             if (total === 0) {
 
-                alert("商品を選んでください");
+                alert("商品選択してください");
                 return;
 
             }
@@ -283,11 +276,11 @@
 
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
 
-            let today = getToday();
+            let t = today();
 
-            if (!sales[today]) sales[today] = [];
+            if (!sales[t]) sales[t] = [];
 
-            sales[today].push({
+            sales[t].push({
 
                 time: new Date().toLocaleTimeString(),
                 amount: total,
@@ -297,7 +290,7 @@
 
             localStorage.setItem("sales", JSON.stringify(sales));
 
-            items.forEach(item => item.qty = 0);
+            items.forEach(i => i.qty = 0);
 
             render();
 
@@ -309,12 +302,12 @@
 
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
 
-            let today = getToday();
+            let t = today();
 
             let todayTotal = 0;
             let weekTotal = 0;
 
-            let staffRank = {};
+            let rank = {};
 
             let now = new Date();
 
@@ -331,7 +324,7 @@
 
                         weekTotal += s.amount;
 
-                        staffRank[s.staff] = (staffRank[s.staff] || 0) + s.amount;
+                        rank[s.staff] = (rank[s.staff] || 0) + s.amount;
 
                     });
 
@@ -339,20 +332,16 @@
 
             }
 
-            if (sales[today]) {
+            if (sales[t]) {
 
-                sales[today].forEach(s => {
-
-                    todayTotal += s.amount;
-
-                });
+                sales[t].forEach(s => todayTotal += s.amount);
 
             }
 
-            document.getElementById("todaySales").textContent = todayTotal;
-            document.getElementById("weekSales").textContent = weekTotal;
+            document.getElementById("todaySales").textContent = format(todayTotal);
+            document.getElementById("weekSales").textContent = format(weekTotal);
 
-            renderRanking(staffRank);
+            renderRanking(rank);
             renderLogs();
 
         }
@@ -363,17 +352,16 @@
 
             arr.sort((a, b) => b[1] - a[1]);
 
-            let div = document.getElementById("staffRank");
-
+            let div = document.getElementById("ranking");
             div.innerHTML = "";
 
             arr.forEach(r => {
 
-                let el = document.createElement("div");
+                let d = document.createElement("div");
 
-                el.textContent = r[0] + " : " + r[1] + "G";
+                d.textContent = r[0] + " : " + format(r[1]) + " G";
 
-                div.appendChild(el);
+                div.appendChild(d);
 
             });
 
@@ -383,27 +371,34 @@
 
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
 
-            let today = getToday();
+            let t = today();
 
-            const logList = document.getElementById("logList");
+            let logList = document.getElementById("logList");
 
             logList.innerHTML = "";
 
-            if (!sales[today]) return;
+            if (!sales[t]) return;
 
-            sales[today].forEach((log, index) => {
+            sales[t].forEach((log, index) => {
+
+                let buttons = "";
+
+                if (isAdmin) {
+
+                    buttons = `
+<button onclick="editLog(${index})">修正</button>
+<button onclick="deleteLog(${index})">削除</button>
+`;
+
+                }
 
                 let div = document.createElement("div");
 
                 div.className = "log";
 
                 div.innerHTML = `
-
-${log.time} - ${log.amount}G (${log.staff})
-
-<button onclick="editLog(${index})">修正</button>
-<button onclick="deleteLog(${index})">削除</button>
-
+${log.time} - ${format(log.amount)}G (${log.staff})
+${buttons}
 `;
 
                 logList.appendChild(div);
@@ -414,22 +409,15 @@ ${log.time} - ${log.amount}G (${log.staff})
 
         function editLog(index) {
 
-            if (!isAdmin) {
-
-                alert("管理者のみ編集できます");
-                return;
-
-            }
-
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
 
-            let today = getToday();
+            let t = today();
 
-            let newAmount = prompt("金額修正", sales[today][index].amount);
+            let newAmount = prompt("金額修正", sales[t][index].amount);
 
             if (newAmount === null) return;
 
-            sales[today][index].amount = Number(newAmount);
+            sales[t][index].amount = Number(newAmount);
 
             localStorage.setItem("sales", JSON.stringify(sales));
 
@@ -439,18 +427,11 @@ ${log.time} - ${log.amount}G (${log.staff})
 
         function deleteLog(index) {
 
-            if (!isAdmin) {
-
-                alert("管理者のみ削除できます");
-                return;
-
-            }
-
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
 
-            let today = getToday();
+            let t = today();
 
-            sales[today].splice(index, 1);
+            sales[t].splice(index, 1);
 
             localStorage.setItem("sales", JSON.stringify(sales));
 
@@ -462,12 +443,12 @@ ${log.time} - ${log.amount}G (${log.staff})
 
             if (!isAdmin) {
 
-                alert("管理者のみリセットできます");
+                alert("管理者のみ");
                 return;
 
             }
 
-            if (confirm("売上をすべて削除しますか？")) {
+            if (confirm("売上削除しますか？")) {
 
                 localStorage.removeItem("sales");
 
@@ -483,11 +464,11 @@ ${log.time} - ${log.amount}G (${log.staff})
 
             let csv = "日付,時間,スタッフ,金額\n";
 
-            for (let date in sales) {
+            for (let d in sales) {
 
-                sales[date].forEach(s => {
+                sales[d].forEach(s => {
 
-                    csv += `${date},${s.time},${s.staff},${s.amount}\n`;
+                    csv += `${d},${s.time},${s.staff},${s.amount}\n`;
 
                 });
 
