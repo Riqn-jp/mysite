@@ -9,7 +9,7 @@
     <style>
         body {
             font-family: sans-serif;
-            background: #c00a0a;
+            background: #f2f2f2;
             text-align: center;
             margin: 0;
         }
@@ -63,7 +63,7 @@
         }
 
         .checkout {
-            background: #000000;
+            background: #2196F3;
             font-size: 20px;
             width: 80%;
             margin: 10px;
@@ -97,17 +97,6 @@
             padding: 5px;
             margin-top: 5px;
         }
-
-        #adminPanel {
-            margin: 10px 0;
-            padding: 10px;
-            background: white;
-            border-radius: 10px;
-        }
-
-        #logoutBtn {
-            background: #f39c12;
-        }
     </style>
 </head>
 
@@ -137,31 +126,13 @@
         1週間の売上: <span id="weekSales">0</span> G
     </div>
 
-    <!-- 今日の売上ログ -->
     <div class="salesBox">
         <h3>今日の売上ログ</h3>
-
-        <!-- 管理者パネルをログの上に移動 -->
-        <div id="adminPanel">
-            <div id="loginForm">
-                <input type="password" id="adminPass" placeholder="管理者パスワード">
-                <button onclick="loginAdmin()">変更開始</button>
-            </div>
-            <div id="adminStatus" style="display:none;">
-                変更中
-                <button id="logoutBtn" onclick="logoutAdmin()">変更終了</button>
-            </div>
-        </div>
-
         <div id="logList"></div>
     </div>
 
     <script>
-        // 管理者パスワード
-        const ADMIN_PASSWORD = "1234";
-        let isAdmin = false;
 
-        // 商品リスト
         let items = [
             { name: "ローストビーフ", price: 120000, qty: 0 },
             { name: "ローストビーフ(白)", price: 60000, qty: 0 },
@@ -169,58 +140,84 @@
             { name: "h666(白)", price: 60000, qty: 0 }
         ];
 
-        // レンダリング
         function render() {
+
             const shop = document.getElementById("shop");
             shop.innerHTML = "";
 
             items.forEach((item, i) => {
+
                 let div = document.createElement("div");
                 div.className = "item";
 
                 div.innerHTML = `
+
 <div class="name">${item.name}</div>
-<div class="price">${item.price.toLocaleString()} G</div>
+<div class="price">${item.price} G</div>
+
 <button class="minus" onclick="changeQty(${i},-10)">-10</button>
 <button class="minus" onclick="changeQty(${i},-1)">-1</button>
+
 <span class="qty">${item.qty}</span>
+
 <button onclick="changeQty(${i},1)">+1</button>
 <button onclick="changeQty(${i},10)">+10</button>
+
 `;
 
                 shop.appendChild(div);
+
             });
 
             updateTotal();
+
         }
 
-        // 数量変更
         function changeQty(index, amount) {
+
             items[index].qty += amount;
-            if (items[index].qty < 0) items[index].qty = 0;
+
+            if (items[index].qty < 0) {
+                items[index].qty = 0;
+            }
+
             render();
+
         }
 
-        // 合計更新
         function updateTotal() {
+
             let total = 0;
-            items.forEach(item => total += item.price * item.qty);
-            document.getElementById("total").textContent = total.toLocaleString();
+
+            items.forEach(item => {
+                total += item.price * item.qty;
+            });
+
+            document.getElementById("total").textContent = total;
+
         }
 
-        // 今日の日付
-        function getToday() { return new Date().toISOString().slice(0, 10); }
+        function getToday() {
+            return new Date().toISOString().slice(0, 10);
+        }
 
-        // 決済
         function checkout() {
-            let total = Number(document.getElementById("total").textContent.replace(/,/g, ""));
-            if (total === 0) { alert("商品を選んでください"); return; }
+
+            let total = Number(document.getElementById("total").textContent);
+
+            if (total === 0) {
+                alert("商品を選んでください");
+                return;
+            }
 
             let staff = document.getElementById("staff").value;
+
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
             let today = getToday();
 
-            if (!sales[today]) sales[today] = [];
+            if (!sales[today]) {
+                sales[today] = [];
+            }
 
             sales[today].push({
                 time: new Date().toLocaleTimeString(),
@@ -229,104 +226,115 @@
             });
 
             localStorage.setItem("sales", JSON.stringify(sales));
+
             items.forEach(item => item.qty = 0);
+
             render();
+
             updateSales();
+
         }
 
-        // 売上更新
         function updateSales() {
+
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+
             let today = getToday();
 
-            let todayTotal = 0, weekTotal = 0;
+            let todayTotal = 0;
+            let weekTotal = 0;
+
             let now = new Date();
 
             for (let i = 0; i < 7; i++) {
+
                 let d = new Date(now);
                 d.setDate(now.getDate() - i);
                 let key = d.toISOString().slice(0, 10);
-                if (sales[key]) sales[key].forEach(s => weekTotal += s.amount);
+
+                if (sales[key]) {
+
+                    sales[key].forEach(s => {
+                        weekTotal += s.amount;
+                    });
+
+                }
+
             }
 
-            if (sales[today]) sales[today].forEach(s => todayTotal += s.amount);
+            if (sales[today]) {
+                sales[today].forEach(s => {
+                    todayTotal += s.amount;
+                });
+            }
 
-            document.getElementById("todaySales").textContent = todayTotal.toLocaleString();
-            document.getElementById("weekSales").textContent = weekTotal.toLocaleString();
+            document.getElementById("todaySales").textContent = todayTotal;
+            document.getElementById("weekSales").textContent = weekTotal;
 
             renderLogs();
+
         }
 
-        // 売上ログ表示
         function renderLogs() {
+
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
             let today = getToday();
+
             const logList = document.getElementById("logList");
             logList.innerHTML = "";
 
             if (!sales[today]) return;
 
             sales[today].forEach((log, index) => {
+
                 let div = document.createElement("div");
                 div.className = "log";
 
                 div.innerHTML = `
-${log.time} - ${log.amount.toLocaleString()}G (${log.staff})
-${isAdmin ? `<button onclick="editLog(${index})">修正</button>
-<button onclick="deleteLog(${index})">削除</button>` : ""}
+${log.time} - ${log.amount}G (${log.staff})
+<button onclick="editLog(${index})">修正</button>
+<button onclick="deleteLog(${index})">削除</button>
 `;
 
                 logList.appendChild(div);
+
             });
+
         }
 
-        // ログ修正
         function editLog(index) {
-            if (!isAdmin) return;
+
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
             let today = getToday();
+
             let newAmount = prompt("金額を修正", sales[today][index].amount);
+
             if (newAmount === null) return;
 
             sales[today][index].amount = Number(newAmount);
+
             localStorage.setItem("sales", JSON.stringify(sales));
+
             updateSales();
+
         }
 
-        // ログ削除
         function deleteLog(index) {
-            if (!isAdmin) return;
+
             let sales = JSON.parse(localStorage.getItem("sales") || "{}");
             let today = getToday();
+
             sales[today].splice(index, 1);
+
             localStorage.setItem("sales", JSON.stringify(sales));
+
             updateSales();
-        }
 
-        // 管理者ログイン
-        function loginAdmin() {
-            const pass = document.getElementById("adminPass").value;
-            if (pass === ADMIN_PASSWORD) {
-                isAdmin = true;
-                document.getElementById("loginForm").style.display = "none";
-                document.getElementById("adminStatus").style.display = "block";
-                renderLogs();
-                alert("管理者ログイン成功");
-            } else {
-                alert("パスワードが違います");
-            }
-        }
-
-        // 管理者ログアウト
-        function logoutAdmin() {
-            isAdmin = false;
-            document.getElementById("loginForm").style.display = "block";
-            document.getElementById("adminStatus").style.display = "none";
-            renderLogs();
         }
 
         render();
         updateSales();
+
     </script>
 
 </body>
