@@ -94,7 +94,7 @@
         変更許可パス<br>
 
         <input type="password" id="adminPass">
-        <button onclick="adminLogin()">ログイン</button>
+        <button onclick="adminLogin()">変更申請</button>
         <span id="adminStatus"></span>
 
     </div>
@@ -117,9 +117,18 @@
             <option>スタッフ選択</option>
             <option>ハイド</option>
             <option>ナイン</option>
+            <option>蓮</option>
             <option>ひなた</option>
-            <option>ココノエユウカ</option>
             <option>かいと</option>
+            <option>7</option>
+            <option>天月</option>
+            <option>りん</option>
+            <option>ココノエユウカ</option>
+            <option>ヒイラギべに</option>
+            <option>こう</option>
+            <option>唯乃</option>
+            <option>レッド・タンジェリン</option>
+
 
         </select>
 
@@ -164,18 +173,18 @@
 
         let items = [
             { name: "オニポテ", price: 80000, qty: 0 },
-            { name: "オニポテ(白)", price: 40000, qty: 0 },
             { name: "DROP OF THE DEVIL", price: 80000, qty: 0 },
-            { name: "DROP OF THE DEVIL(白)", price: 40000, qty: 0 },
-            { name: "ローストビーフ", price: 120000, qty: 0 },
-            { name: "ローストビーフ白", price: 60000, qty: 0 },
             { name: "h666", price: 120000, qty: 0 },
-            { name: "h666白", price: 60000, qty: 0 },
             { name: "DIABLE ROUGE", price: 120000, qty: 0 },
-            { name: "DIABLE ROUGE白", price: 60000, qty: 0 },
+            { name: "ローストビーフ", price: 120000, qty: 0 },
             { name: "LILITH FROST", price: 120000, qty: 0 },
-            { name: "LILITH FROST白", price: 60000, qty: 0 },
-            { name: "イベント商品", price: 200000, qty: 0 },
+            { name: "オニポテ(白)", price: 40000, qty: 0 },
+            { name: "DROP OF THE DEVIL(白)", price: 40000, qty: 0 },
+            { name: "ローストビーフ(白)", price: 60000, qty: 0 },
+            { name: "h666(白)", price: 60000, qty: 0 },
+            { name: "DIABLE ROUGE(白)", price: 60000, qty: 0 },
+            { name: "LILITH FROST(白)", price: 60000, qty: 0 },
+            { name: "イベント商品", price: 200000, qty: 0 }
         ];
 
         function format(num) {
@@ -189,13 +198,13 @@
             if (pass === ADMIN_PASSWORD) {
 
                 isAdmin = true;
-                document.getElementById("adminStatus").textContent = "管理者ログイン中";
+                document.getElementById("adminStatus").textContent = "変更可能";
 
                 updateSales();
 
             } else {
 
-                alert("パスワード違います");
+                alert("勝手に変えようとしないでね～");
 
             }
 
