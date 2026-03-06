@@ -20,6 +20,12 @@
             margin: 0;
         }
 
+        .tabs button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+
         .container {
             display: flex;
             flex-wrap: wrap;
@@ -92,19 +98,9 @@
     <div class="box">
 
         変更許可パス<br>
-
         <input type="password" id="adminPass">
         <button onclick="adminLogin()">変更申請</button>
         <span id="adminStatus"></span>
-
-    </div>
-
-    <div id="shop" class="container"></div>
-
-    <div class="box">
-
-        合計: <span id="total">0</span> 円
-
 
     </div>
 
@@ -113,7 +109,6 @@
         担当者<br>
 
         <select id="staff">
-
             <option>スタッフ選択</option>
             <option>ハイド</option>
             <option>ナイン</option>
@@ -128,10 +123,23 @@
             <option>こう</option>
             <option>唯乃</option>
             <option>レッド・タンジェリン</option>
-
-
         </select>
 
+    </div>
+
+    <div class="tabs">
+
+        <button onclick="changeTab('30')">30%回復</button>
+        <button onclick="changeTab('50')">50%回復</button>
+        <button onclick="changeTab('white')">白</button>
+        <button onclick="changeTab('event')">イベント</button>
+
+    </div>
+
+    <div id="shop" class="container"></div>
+
+    <div class="box">
+        合計: <span id="total">0</span> 円
     </div>
 
     <button class="checkout" onclick="checkout()">決済</button>
@@ -146,7 +154,6 @@
     <div class="box">
 
         <h3>スタッフランキング</h3>
-
         <div id="ranking"></div>
 
     </div>
@@ -161,7 +168,6 @@
     <div class="box">
 
         <h3>今日の売上ログ</h3>
-
         <div id="logList"></div>
 
     </div>
@@ -171,24 +177,31 @@
         let ADMIN_PASSWORD = "イズミーランド";
         let isAdmin = false;
 
+        let currentTab = "30";
+
         let items = [
-            { name: "オニポテ", price: 80000, qty: 0 },
-            { name: "DROP OF THE DEVIL", price: 80000, qty: 0 },
-            { name: "h666", price: 120000, qty: 0 },
-            { name: "DIABLE ROUGE", price: 120000, qty: 0 },
-            { name: "ローストビーフ", price: 120000, qty: 0 },
-            { name: "LILITH FROST", price: 120000, qty: 0 },
-            { name: "オニポテ(白)", price: 40000, qty: 0 },
-            { name: "DROP OF THE DEVIL(白)", price: 40000, qty: 0 },
-            { name: "ローストビーフ(白)", price: 60000, qty: 0 },
-            { name: "h666(白)", price: 60000, qty: 0 },
-            { name: "DIABLE ROUGE(白)", price: 60000, qty: 0 },
-            { name: "LILITH FROST(白)", price: 60000, qty: 0 },
-            { name: "イベント商品", price: 200000, qty: 0 }
+
+            { name: "オニポテ", price: 80000, qty: 0, tab: "30" },
+            { name: "DROP OF THE DEVIL", price: 80000, qty: 0, tab: "30" },
+
+            { name: "h666", price: 120000, qty: 0, tab: "50" },
+            { name: "DIABLE ROUGE", price: 120000, qty: 0, tab: "50" },
+            { name: "ローストビーフ", price: 120000, qty: 0, tab: "50" },
+            { name: "LILITH FROST", price: 120000, qty: 0, tab: "50" },
+
+            { name: "オニポテ(白)", price: 40000, qty: 0, tab: "white" },
+            { name: "DROP OF THE DEVIL(白)", price: 40000, qty: 0, tab: "white" },
+            { name: "ローストビーフ(白)", price: 60000, qty: 0, tab: "white" },
+            { name: "h666(白)", price: 60000, qty: 0, tab: "white" },
+            { name: "DIABLE ROUGE(白)", price: 60000, qty: 0, tab: "white" },
+            { name: "LILITH FROST(白)", price: 60000, qty: 0, tab: "white" },
+
+            { name: "イベント商品", price: 200000, qty: 0, tab: "event" }
+
         ];
 
         function format(num) {
-            return num.toLocaleString();
+            return num.toLocaleString("ja-JP");
         }
 
         function adminLogin() {
@@ -199,7 +212,6 @@
 
                 isAdmin = true;
                 document.getElementById("adminStatus").textContent = "変更可能";
-
                 updateSales();
 
             } else {
@@ -210,6 +222,13 @@
 
         }
 
+        function changeTab(tab) {
+
+            currentTab = tab;
+            render();
+
+        }
+
         function render() {
 
             const shop = document.getElementById("shop");
@@ -217,8 +236,9 @@
 
             items.forEach((item, i) => {
 
-                let div = document.createElement("div");
+                if (item.tab !== currentTab) return;
 
+                let div = document.createElement("div");
                 div.className = "item";
 
                 div.innerHTML = `
@@ -312,7 +332,6 @@
             items.forEach(i => i.qty = 0);
 
             render();
-
             updateSales();
 
         }
@@ -342,7 +361,6 @@
                     sales[key].forEach(s => {
 
                         weekTotal += s.amount;
-
                         rank[s.staff] = (rank[s.staff] || 0) + s.amount;
 
                     });
@@ -377,9 +395,7 @@
             arr.forEach(r => {
 
                 let d = document.createElement("div");
-
-                d.textContent = r[0] + " : " + format(r[1]) + " G";
-
+                d.textContent = r[0] + " : " + format(r[1]) + " 円";
                 div.appendChild(d);
 
             });
@@ -416,7 +432,7 @@
                 div.className = "log";
 
                 div.innerHTML = `
-${log.time} - ${format(log.amount)}G (${log.staff})
+${log.time} - ${format(log.amount)}円 (${log.staff})
 ${buttons}
 `;
 
