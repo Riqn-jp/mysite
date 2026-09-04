@@ -516,6 +516,1016 @@ ${buttons}
             a.href = URL.createObjectURL(blob);
 
             a.download = "sales.csv";
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>inferno 価格計算</title>
+    <!-- 雰囲気抜群の洋風フォントをインポート -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Philosopher:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 地獄のダーク＆クリムゾン・ラグジュアリーBARカラー --- */
+        :root {
+            --bg-color: #0d0d0d;          
+            --panel-bg: #1a1a1a;          
+            --inferno-red: #d32f2f;      
+            --inferno-hover: #f44336;    
+            --inferno-dark-red: #5f0909;  
+            --text-main: #e0e0e0;        
+            --text-sub: #cfd8dc;          
+            --border-color: #331111;      
+            --accent-gold: #ffb300;      
+        }
+
+        body {
+            /* 魅惑のダーク西洋フォント ＆ 雰囲気のある明朝・ゴシックブレンド */
+            font-family: 'Cinzel', 'Philosopher', 'Georgia', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding-bottom: 30px;
+            line-height: 1.6;
+            background-image: radial-gradient(circle at 50% 30%, #200404 0%, #0d0d0d 70%);
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, #1a0202 0%, #0d0d0d 100%);
+            color: var(--inferno-red);
+            padding: 24px;
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 6px;
+            font-weight: 900;
+            text-align: center;
+            border-bottom: 3px double var(--inferno-dark-red);
+            text-shadow: 0 0 15px rgba(211, 47, 47, 0.6), 1px 1px 0px #000;
+        }
+
+        .main-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 900px) {
+            .main-wrapper {
+                grid-template-columns: 1.3fr 0.7fr;
+            }
+        }
+
+        /* 重厚感のある石造りのボックス */
+        .box {
+            background: var(--panel-bg);
+            padding: 24px;
+            border-radius: 16px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            text-align: left;
+            box-sizing: border-box;
+        }
+
+        .box-title {
+            font-family: 'Cinzel', 'Philosopher', serif;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent-gold);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--inferno-dark-red);
+            padding-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .box-title::before {
+            content: "✦";
+            color: var(--inferno-red);
+        }
+
+        .admin-staff-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        @media (min-width: 500px) {
+            .admin-staff-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .input-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        input[type="password"], input[type="text"], input[type="number"], select {
+            font-family: inherit;
+            font-size: 14px;
+            padding: 12px 14px;
+            background-color: #121212;
+            color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+
+        input[type="password"]:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: var(--inferno-red);
+            background-color: #181818;
+            box-shadow: 0 0 10px rgba(211, 47, 47, 0.4);
+        }
+
+        #adminStatus {
+            font-size: 11px;
+            color: var(--inferno-red);
+            display: block;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        /* カテゴリタブ：シックな黒赤タブ */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tabs button {
+            font-family: inherit;
+            flex: 1;
+            min-width: 100px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            background: #151515;
+            color: #888888;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .tabs button.active {
+            background: linear-gradient(135deg, var(--inferno-dark-red) 0%, #3a0303 100%);
+            color: #ffcccc;
+            border-color: var(--inferno-red);
+            box-shadow: 0 0 12px rgba(211, 47, 47, 0.3);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            padding: 0;
+        }
+
+        /* メニューカード */
+        .item {
+            background: #181818;
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .item:hover {
+            border-color: var(--inferno-red);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(211, 47, 47, 0.25);
+            background: #1d1414;
+        }
+
+        .item-name {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: left;
+            margin-bottom: 6px;
+            color: #ffffff;
+            letter-spacing: 1px;
+            padding-right: 30px;
+        }
+
+        .price {
+            font-family: 'Cinzel', serif;
+            color: var(--accent-gold);
+            font-weight: bold;
+            font-size: 16px;
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        /* ミニ削除ボタン（管理者用） */
+        .btn-delete-item {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #2a0808;
+            color: #ff5252;
+            border: 1px solid #d32f2f;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+
+        .btn-delete-item:hover {
+            background: var(--inferno-red);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* 数量コントロール */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: 2px solid var(--border-color);
+            background: #101010;
+            padding: 6px;
+            border-radius: 10px;
+        }
+
+        .qty {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            display: inline-block;
+            width: 45px;
+            text-align: center;
+        }
+
+        button {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-family: inherit;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .box button, .input-group button {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, var(--inferno-dark-red) 0%, #b71c1c 100%);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 13px;
+            border-radius: 8px;
+            border: 1px solid var(--inferno-red);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .box button:hover, .input-group button:hover {
+            background: linear-gradient(135deg, #b71c1c 0%, var(--inferno-hover) 100%);
+            box-shadow: 0 0 10px rgba(211, 47, 47, 0.4);
+        }
+
+        .btn-qty {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 8px 10px;
+            background: #1e1e1e;
+            color: #aaaaaa;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .btn-qty:hover {
+            color: #ffffff;
+            background: var(--inferno-dark-red);
+            border-color: var(--inferno-red);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 🧹 RESET ALL ボタン */
+        .btn-clear-sidebar {
+            background: #1a0a0a;
+            color: #d32f2f;
+            border: 2px dashed #b71c1c;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .btn-clear-sidebar:hover {
+            background: #3a1010;
+            border-style: solid;
+            color: #ff8a80;
+            transform: translateY(-1px);
+        }
+
+        /* 合計金額表示 */
+        .totalBox {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid var(--inferno-red);
+            background: linear-gradient(135deg, #2a0a0a 0%, #121212 100%);
+            border-radius: 16px;
+            box-shadow: 0 0 15px rgba(211, 47, 47, 0.2);
+        }
+
+        .total-label {
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        .total-price-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .total-price {
+            font-family: 'Cinzel', serif;
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        /* 決済ボタン */
+        .checkout {
+            font-family: 'Cinzel', 'Philosopher', serif;
+            background: linear-gradient(135deg, #b71c1c 0%, #3e0606 100%);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid var(--inferno-red);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+        }
+
+        .checkout:hover {
+            background: linear-gradient(135deg, var(--inferno-hover) 0%, #5c0d0d 100%);
+            box-shadow: 0 0 20px rgba(211, 47, 47, 0.6);
+        }
+
+        .sales-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .sales-val {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin-top: 4px;
+        }
+
+        #ranking {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #141414;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+        }
+       
+        .rank-item:nth-child(1) {
+            background: #251010;
+            border-color: var(--inferno-red);
+            box-shadow: 0 0 8px rgba(211, 47, 47, 0.2);
+        }
+
+        .rank-name {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .rank-amount {
+            font-family: 'Cinzel', serif;
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        /* --- 管理者用エリア --- */
+        .admin-log-area {
+            max-height: 240px;
+            overflow-y: auto;
+            border: 1.5px solid var(--border-color);
+            background: #101010;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .log-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+            padding: 10px 4px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .log-info {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .log-btns {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .btn-admin-action {
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .btn-edit {
+            background: #1b2621 !important;
+            color: #a5d6a7 !important;
+            border: 1px solid #2e7d32 !important;
+        }
+        .btn-edit:hover { background: #2e7d32 !important; color: #fff !important;}
+       
+        .btn-delete {
+            background: #2d181b !important;
+            color: #ef9a9a !important;
+            border: 1px solid #c62828 !important;
+        }
+        .btn-delete:hover { background: #c62828 !important; color: #fff !important;}
+       
+        .btn-override {
+            background: transparent !important;
+            color: var(--accent-gold) !important;
+            border: 1.5px solid var(--accent-gold) !important;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+        }
+        .btn-override:hover { background: rgba(255, 179, 0, 0.1) !important; }
+
+        /* 商品管理フォーム */
+        .manage-form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        @media (min-width: 600px) {
+            .manage-form-grid {
+                grid-template-columns: 1.2fr 1.5fr 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>✦ INFERNO SYSTEM ✦</h1>
+
+    <div class="main-wrapper">
+
+        <!-- 左側メインエリア -->
+        <div>
+            <!-- 管理・スタッフ選択 -->
+            <div class="box admin-staff-grid" style="margin-bottom: 20px;">
+                <div>
+                    <div class="box-title">ADMIN LOGIN (管理者用)</div>
+                    <div class="input-group" id="adminInputGroup">
+                        <input type="password" id="adminPass" placeholder="パスワードを入力">
+                        <button onclick="adminLogin()">ログイン</button>
+                    </div>
+                    <div id="adminActiveGroup" style="display: none; gap: 5px;">
+                        <button onclick="adminLogout()" style="background:var(--inferno-dark-red); color:#ffffff; width:100%; border: 1px solid var(--inferno-red);">LOGOUT (管理者ログアウト)</button>
+                    </div>
+                    <span id="adminStatus"></span>
+                </div>
+                <div>
+                    <div class="box-title">STAFF (担当スタッフ)</div>
+                    <select id="staff">
+                        <option>スタッフ選択</option>
+                        <option>ハイド</option>
+                        <option>ナイン</option>
+                        <option>蓮</option>
+                        <option>ひなた</option>
+                        <option>かいと</option>
+                        <option>7</option>
+                        <option>天月</option>
+                        <option>りん</option>
+                        <option>ココノエユウカ</option>
+                        <option>ヒイラギべに</option>
+                        <option>こう</option>
+                        <option>唯乃</option>
+                        <option>レッド・タンジェリン</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 🛠️ 管理者用の「商品追加＆設定」パネル -->
+            <div class="box" id="adminItemManager" style="display: none; margin-bottom: 20px; border-style: dashed; border-color: var(--inferno-red);">
+                <div class="box-title" style="color: var(--accent-gold);">ITEM EDITOR (商品追加・編集)</div>
+                <div class="manage-form-grid">
+                    <select id="newCategory">
+                        <option value="30">30%回復</option>
+                        <option value="50">50%回復</option>
+                        <option value="white">白</option>
+                        <option value="event">イベント</option>
+                    </select>
+                    <input type="text" id="newItemName" placeholder="商品名を入力">
+                    <input type="number" id="newItemPrice" placeholder="価格（円）" min="0">
+                    <button onclick="addNewItem()">商品を追加する ✦</button>
+                </div>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button onclick="exportItemsCode()" style="background: var(--inferno-dark-red); border-color: var(--inferno-red);">GitHub貼り付け用コードをコピーする</button>
+                    <button onclick="resetItemsToDefault()" style="background: #2a0a0a; color: #ff8a80; border: 1.5px solid #d32f2f;">商品をすべて初期値にリセット</button>
+                </div>
+            </div>
+
+            <!-- カテゴリタブ -->
+            <div class="tabs" id="tabContainer">
+                <button id="tab-30" onclick="changeTab('30')" class="active">30%回復</button>
+                <button id="tab-50" onclick="changeTab('50')">50%回復</button>
+                <button id="tab-white" onclick="changeTab('white')">白</button>
+                <button id="tab-event" onclick="changeTab('event')">イベント</button>
+            </div>
+
+            <div id="shop" class="container"></div>
+        </div>
+
+        <!-- 右側メインエリア（サイドバー） -->
+        <div class="sidebar">
+            <!-- 合計金額 -->
+            <div class="box totalBox">
+                <span class="total-label">TOTAL (合計金額)</span>
+                <div class="total-price-wrapper">
+                    <button id="btnOverrideTotal" class="btn-override" style="display: none;" onclick="overrideTotal()">金額変更</button>
+                    <span><span id="total" class="total-price">0</span> <span style="font-size: 13px; color: var(--text-main); font-weight: bold;">円</span></span>
+                </div>
+            </div>
+
+            <!-- 🧹 ALL CLEARボタン -->
+            <button class="btn-clear-sidebar" onclick="clearAllItems()">RESET ALL 🧹 (選択クリア)</button>
+
+            <!-- 決済実行 -->
+            <button class="checkout" onclick="checkout()">CHECKOUT (会計実行) ✦</button>
+
+            <!-- 売上集計 -->
+            <div class="box">
+                <div class="box-title">SALES REPORT (売上集計)</div>
+                <div class="sales-grid">
+                    <div>
+                        <div style="font-size:12px; color:#aaaaaa; letter-spacing:1px; font-weight: bold;">TODAY (本日売上)</div>
+                        <div class="sales-val"><span id="todaySales">0</span> 円</div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px; color:#aaaaaa; letter-spacing:1px; font-weight: bold;">WEEKLY (週間売上)</div>
+                        <div class="sales-val"><span id="weekSales">0</span> 円</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 売上順位 -->
+            <div class="box">
+                <div class="box-title">STAFF RANKING (スタッフ売上順位)</div>
+                <div id="ranking"></div>
+            </div>
+
+            <!-- 管理者専用履歴修正エリア -->
+            <div class="box" id="adminLogBox" style="display: none;">
+                <div class="box-title" style="color: var(--inferno-red);">HISTORY LOG (本日分売上履歴・修正)</div>
+                <div class="admin-log-area" id="logList"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let ADMIN_PASSWORD = "イズミーランド";
+        let isAdmin = false;
+        let currentTab = "30";
+        let isTotalOverridden = false;
+        let overriddenTotalValue = 0;
+
+        // ★ 初期データ
+        const DEFAULT_ITEMS = [
+            { name: "オニポテ", price: 80000, qty: 0, tab: "30" },
+            { name: "DROP OF THE DEVIL", price: 80000, qty: 0, tab: "30" },
+
+            { name: "h666", price: 120000, qty: 0, tab: "50" },
+            { name: "DIABLE ROUGE", price: 120000, qty: 0, tab: "50" },
+            { name: "ローストビーフ", price: 120000, qty: 0, tab: "50" },
+            { name: "LILITH FROST", price: 120000, qty: 0, tab: "50" },
+
+            { name: "オニポテ(白)", price: 40000, qty: 0, tab: "white" },
+            { name: "DROP OF THE DEVIL(白)", price: 40000, qty: 0, tab: "white" },
+            { name: "ローストビーフ(白)", price: 60000, qty: 0, tab: "white" },
+            { name: "h666(白)", price: 60000, qty: 0, tab: "white" },
+            { name: "DIABLE ROUGE(白)", price: 60000, qty: 0, tab: "white" },
+            { name: "LILITH FROST(白)", price: 60000, qty: 0, tab: "white" },
+
+            { name: "イベント商品", price: 200000, qty: 0, tab: "event" }
+        ];
+
+        let items = [];
+        function loadItems() {
+            let saved = localStorage.getItem("shop_items");
+            if (saved) {
+                items = JSON.parse(saved);
+                items.forEach(i => i.qty = 0);
+            } else {
+                items = JSON.parse(JSON.stringify(DEFAULT_ITEMS));
+            }
+        }
+
+        function saveItems() {
+            localStorage.setItem("shop_items", JSON.stringify(items));
+        }
+
+        function format(num) {
+            return num.toLocaleString("ja-JP");
+        }
+
+        function adminLogin() {
+            let pass = document.getElementById("adminPass").value;
+            if (pass === ADMIN_PASSWORD) {
+                isAdmin = true;
+                document.getElementById("adminStatus").textContent = "管理者認証に成功しました";
+                document.getElementById("adminInputGroup").style.display = "none";
+                document.getElementById("adminActiveGroup").style.display = "flex";
+                document.getElementById("adminLogBox").style.display = "block";
+                document.getElementById("btnOverrideTotal").style.display = "block";
+                document.getElementById("adminItemManager").style.display = "block";
+                render();
+                updateSales();
+            } else {
+                alert("パスワードが違います");
+            }
+        }
+
+        function adminLogout() {
+            isAdmin = false;
+            document.getElementById("adminPass").value = "";
+            document.getElementById("adminStatus").textContent = "";
+            document.getElementById("adminInputGroup").style.display = "flex";
+            document.getElementById("adminActiveGroup").style.display = "none";
+            document.getElementById("adminLogBox").style.display = "none";
+            document.getElementById("btnOverrideTotal").style.display = "none";
+            document.getElementById("adminItemManager").style.display = "none";
+            render();
+            updateSales();
+        }
+
+        function addNewItem() {
+            let name = document.getElementById("newItemName").value.trim();
+            let price = parseInt(document.getElementById("newItemPrice").value, 10);
+            let tab = document.getElementById("newCategory").value;
+
+            if (!name) {
+                alert("商品名を入力してください。");
+                return;
+            }
+            if (isNaN(price) || price < 0) {
+                alert("正しい価格を入力してください。");
+                return;
+            }
+
+            items.push({
+                name: name,
+                price: price,
+                qty: 0,
+                tab: tab
+            });
+
+            saveItems();
+            render();
+
+            document.getElementById("newItemName").value = "";
+            document.getElementById("newItemPrice").value = "";
+            alert(`「${name}」を商品リストに追加しました！`);
+        }
+
+        function deleteItem(index) {
+            let item = items[index];
+            if (!confirm(`本当に商品「${item.name}」をリストから削除しますか？`)) return;
+           
+            items.splice(index, 1);
+            saveItems();
+            render();
+        }
+
+        function resetItemsToDefault() {
+            if (!confirm("商品リストをすべてデフォルトの初期設定に戻しますか？\n(これまで手動で追加・削除した設定は消去されます)")) return;
+            localStorage.removeItem("shop_items");
+            loadItems();
+            render();
+            alert("初期化に成功しました！");
+        }
+
+        function exportItemsCode() {
+            let cleanItems = items.map(i => {
+                return { name: i.name, price: i.price, qty: 0, tab: i.tab };
+            });
+            let codeString = JSON.stringify(cleanItems, null, 4);
+           
+            navigator.clipboard.writeText(codeString).then(() => {
+                alert("現在の設定コードをクリップボードにコピーしました！\nGitHubのHTMLファイルの「DEFAULT_ITEMS = [...]」の部分に貼り付けて保存（コミット）してください。");
+            }).catch(err => {
+                alert("コピーに失敗しました。");
+            });
+        }
+
+        function clearAllItems() {
+            if (!confirm("現在選択しているすべての商品の数を「0」に戻しますか？")) return;
+            items.forEach(i => i.qty = 0);
+            isTotalOverridden = false;
+            render();
+        }
+
+        function changeTab(tab) {
+            currentTab = tab;
+            const buttons = document.querySelectorAll('.tabs button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            render();
+        }
+
+        function render() {
+            const shop = document.getElementById("shop");
+            shop.innerHTML = "";
+
+            items.forEach((item, i) => {
+                if (item.tab !== currentTab) return;
+
+                let div = document.createElement("div");
+                div.className = "item";
+
+                let deleteButtonHTML = isAdmin
+                    ? `<button class="btn-delete-item" onclick="deleteItem(${i})">🗑️</button>`
+                    : "";
+
+                div.innerHTML = `
+                    ${deleteButtonHTML}
+                    <div class="item-name">${item.name}</div>
+                    <div class="price">${format(item.price)} 円</div>
+                    <div class="controls">
+                        <button class="btn-qty btn-minus" onclick="changeQty(${i},-10)">-10</button>
+                        <button class="btn-qty btn-minus" onclick="changeQty(${i},-1)">-1</button>
+                        <span class="qty">${item.qty}</span>
+                        <button class="btn-qty btn-plus" onclick="changeQty(${i},1)">+1</button>
+                        <button class="btn-qty btn-plus" onclick="changeQty(${i},10)">+10</button>
+                    </div>
+                `;
+                shop.appendChild(div);
+            });
+
+            updateTotal();
+        }
+
+        function changeQty(index, amount) {
+            isTotalOverridden = false;
+            items[index].qty += amount;
+            if (items[index].qty < 0) items[index].qty = 0;
+            render();
+        }
+
+        function overrideTotal() {
+            let input = prompt("現在の合計金額をいくらに変更しますか？(半角数字)", "0");
+            if (input === null) return;
+            let val = parseInt(input, 10);
+            if (isNaN(val) || val < 0) {
+                alert("正しい数値を入力してください");
+                return;
+            }
+            isTotalOverridden = true;
+            overriddenTotalValue = val;
+            document.getElementById("total").textContent = format(val);
+        }
+
+        function updateTotal() {
+            if (isTotalOverridden) return;
+
+            let total = 0;
+            items.forEach(i => {
+                total += i.price * i.qty;
+            });
+            document.getElementById("total").textContent = format(total);
+        }
+
+        function today() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        function checkout() {
+            let total = 0;
+            if (isTotalOverridden) {
+                total = overriddenTotalValue;
+            } else {
+                items.forEach(i => {
+                    total += i.price * i.qty;
+                });
+            }
+
+            if (total === 0 && !confirm("0円で決済を実行しますか？")) {
+                return;
+            }
+
+            let staff = document.getElementById("staff").value;
+            if (staff === "スタッフ選択") {
+                alert("担当スタッフを選択してください");
+                return;
+            }
+
+            let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+            let t = today();
+
+            if (!sales[t]) sales[t] = [];
+
+            sales[t].push({
+                time: new Date().toLocaleTimeString(),
+                amount: total,
+                staff: staff
+            });
+
+            localStorage.setItem("sales", JSON.stringify(sales));
+           
+            items.forEach(i => i.qty = 0);
+            isTotalOverridden = false;
+
+            render();
+            updateSales();
+        }
+
+        function updateSales() {
+            let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+            let t = today();
+            let todayTotal = 0;
+            let weekTotal = 0;
+            let rank = {};
+            let now = new Date();
+
+            for (let i = 0; i < 7; i++) {
+                let d = new Date(now);
+                d.setDate(now.getDate() - i);
+                let key = d.toISOString().slice(0, 10);
+
+                if (sales[key]) {
+                    sales[key].forEach(s => {
+                        weekTotal += s.amount;
+                        rank[s.staff] = (rank[s.staff] || 0) + s.amount;
+                    });
+                }
+            }
+
+            if (sales[t]) {
+                sales[t].forEach(s => todayTotal += s.amount);
+            }
+
+            document.getElementById("todaySales").textContent = format(todayTotal);
+            document.getElementById("weekSales").textContent = format(weekTotal);
+
+            renderRanking(rank);
+            if (isAdmin) {
+                renderLogList();
+            }
+        }
+
+        function renderLogList() {
+            let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+            let t = today();
+            let listDiv = document.getElementById("logList");
+            listDiv.innerHTML = "";
+
+            if (!sales[t] || sales[t].length === 0) {
+                listDiv.innerHTML = `<div style="color:#666; font-size:12px; text-align:center;">本日の売上履歴なし</div>`;
+                return;
+            }
+
+            for (let i = sales[t].length - 1; i >= 0; i--) {
+                let item = sales[t][i];
+                let itemDiv = document.createElement("div");
+                itemDiv.className = "log-item";
+                itemDiv.innerHTML = `
+                    <div class="log-info">
+                        <span>[${item.time}] ${item.staff}</span>
+                        <span style="color: var(--accent-gold); font-weight:bold;">${format(item.amount)}円</span>
+                    </div>
+                    <div class="log-btns">
+                        <button class="btn-admin-action btn-edit" onclick="editLog(${i})">金額修正</button>
+                        <button class="btn-admin-action btn-delete" onclick="deleteLog(${i})">削除</button>
+                    </div>
+                `;
+                listDiv.appendChild(itemDiv);
+            }
+        }
+
+        function editLog(index) {
+            let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+            let t = today();
+            if (!sales[t] || !sales[t][index]) return;
+           
+            let currentAmount = sales[t][index].amount;
+            let input = prompt(`この売上の新しい金額を入力してください。\n現在の金額: ${currentAmount}円`, currentAmount);
+           
+            if (input === null) return;
+            let newAmount = parseInt(input, 10);
+            if (isNaN(newAmount) || newAmount < 0) {
+                alert("正しい数値を入力してください");
+                return;
+            }
+           
+            sales[t][index].amount = newAmount;
+            localStorage.setItem("sales", JSON.stringify(sales));
+            updateSales();
+        }
+
+        function deleteLog(index) {
+            if (!confirm("この売上履歴を削除しますか？")) return;
+            let sales = JSON.parse(localStorage.getItem("sales") || "{}");
+            let t = today();
+            if (sales[t]) {
+                sales[t].splice(index, 1);
+                localStorage.setItem("sales", JSON.stringify(sales));
+                updateSales();
+            }
+        }
+
+        function renderRanking(rank) {
+            let arr = Object.entries(rank);
+            arr.sort((a, b) => b[1] - a[1]);
+
+            let div = document.getElementById("ranking");
+            div.innerHTML = "";
+
+            if(arr.length === 0) {
+                div.innerHTML = `<div style="color: #666; font-size: 13px; text-align: center; padding: 10px;">売上データなし</div>`;
+                return;
+            }
+
+            arr.forEach((r, idx) => {
+                let d = document.createElement("div");
+                d.className = "rank-item";
+                d.innerHTML = `
+                    <span class="rank-name">No.${idx + 1} ${r[0]}</span>
+                    <span class="rank-amount">${format(r[1])} 円</span>
+                `;
+                div.appendChild(d);
+            });
+        }
+
+        loadItems();
+        render();
+        updateSales();
+    </script>
+</body>
+
+</html>
 
             a.click();
 
